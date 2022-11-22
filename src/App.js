@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Button, Card } from 'react-bootstrap';
+import {useGetQuotes} from "./hooks/useGetQuotes";
 
 function App() {
-  const [quotes, setQuotes] = useState([]);
+  const { quotes, isLoading, getQuotes} = useGetQuotes();
   const [randomQuote, setRandomQuote] = useState({});
   const [isReady, setIsReady] = useState(false);
   const [bgColor, setBgColor] = useState('');
@@ -21,20 +22,13 @@ function App() {
     '#73A857',
   ];
 
+  //Pick a randomColor for backgroundColor & textColor
   const pickRandomColor = () => {
     setBgColor(colors[Math.floor(Math.random() * colors.length)])
   };
 
-  //Fetch all the quotes and setQuotes
-  const fetchQuotes = async () => {
-    await fetch(
-      'https://gist.githubusercontent.com/camperbot/5a022b72e96c4c9585c32bf6a75f62d9/raw/e3c6895ce42069f0ee7e991229064f167fe8ccdc/quotes.json'
-    )
-      .then((response) => response.json())
-      .then(setQuotes);
-  };
 
-  //onClick get newRandomQuote
+  //onClick get newRandomQuote & newRandomColor
   const handleNewQuote = () => {
     pickRandomColor();
     setRandomQuote(getRandomQuote());
@@ -49,10 +43,11 @@ function App() {
       };
     }
   };
+
   //Fetch Quotes onPageLoad
   useEffect(() => {
-    pickRandomColor()
-    fetchQuotes();
+    getQuotes();
+    pickRandomColor();
   }, []);
 
   //setRandomQuote after Quotes are fetched to prevent undefined values
@@ -76,6 +71,7 @@ function App() {
         id='wrapper'
         fluid
       >
+        {isLoading ? <div>Loading...</div> : (
         <Card
           id='quote-box'
           style={{
@@ -148,7 +144,7 @@ function App() {
               </Button>
             </span>
           </Row>
-        </Card>
+        </Card> )}
       </Container>
     </>
   );
